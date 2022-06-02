@@ -1,0 +1,39 @@
+FROM alpine:latest
+
+ENV UID="1000" \
+    UNAME="roger" \
+    GID="1000" \
+    GNAME="roger" \
+    SHELL="/bin/zsh" \
+    UHOME=/home/roger
+    
+RUN apk update && \
+    apk add \
+    zsh \
+    git \
+    neovim \
+    zsh-autosuggestions \
+    zsh-syntax-highlighting \
+    bind-tools \curl \
+    llvm \
+    python-dev \
+    rust \
+    nodejs \ 
+    npm \
+    openssh \
+    && \
+    rm -rf /var/cache/apk/*
+    
+# Uses "Spaceship" theme with some customization. Uses some bundled plugins and installs some more from github
+RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v1.1.2/zsh-in-docker.sh)" -- \
+    -t https://github.com/denysdovhan/spaceship-prompt \
+    -a 'SPACESHIP_PROMPT_ADD_NEWLINE="false"' \
+    -a 'SPACESHIP_PROMPT_SEPARATE_LINE="false"' \
+    -p git \
+    -p ssh-agent \
+    -p https://github.com/zsh-users/zsh-autosuggestions \
+    -p https://github.com/zsh-users/zsh-completions
+RUN rc-update add sshd
+RUN /etc/init.d/sshd start
+
+ENTRYPOINT /bin/zsh
